@@ -1,0 +1,102 @@
+<html lang="en" ng-app="rmsApp"><head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link rel="icon" href="../favicon.ico">
+
+        <title>Recruitment Management System</title>
+
+        <!-- Bootstrap core CSS -->
+        <link href="./../css/bootstrap.min.css" rel="stylesheet">
+        <link href="./../css/bootstrap-social.css" rel="stylesheet">
+        <link href="./../css/lib/font-awesome/4.0.0/font-awesome.css" rel="stylesheet">
+
+    </head>
+
+    <body>
+
+        <nav class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="index.html">
+                        <embed src="./../img/logo.svg" height="20">
+                        My ReMaSy
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <div ng-view></div>
+
+        <div class="container">
+            <hr>
+
+            <footer>
+                <p>© REMASY 2015</p>
+            </footer>
+        </div> <!-- /container -->
+
+
+        <!-- Bootstrap core JavaScript
+        ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="./../js/lib/jquery/1.11.1/jquery.min.js"></script>
+        <script src="./../js/lib/boostrap/3.3.1/bootstrap.min.js"></script>
+        <script src="./../js/lib/angular/1.5.8/angular.min.js"></script>
+        <script src="./../js/lib/angular/1.5.8/angular-resource.min.js"></script>
+        <script src="./../js/lib/angular/1.5.8/angular-route.min.js"></script>
+        <script>
+                    var rmsApp = angular.module('rmsApp', ['ngResource', 'ngRoute']);
+                    rmsApp.config(['$routeProvider', '$locationProvider',
+                        function ($routeProvider, $locationProvider) {
+                            $routeProvider.
+                                    when('/lost', {
+                                        templateUrl: 'partials/lost.html',
+                                    }).
+                                    when('/interviewInvite', {
+                                        templateUrl: 'partials/interviewInvite.html',
+                                        controller: 'InterviewInviteCtrl'
+                                    }).
+                                    when('/feedback', {
+                                        templateUrl: 'partials/feedback.html',
+                                        controller: 'FeedbackCtrl'
+                                    }).
+                                    otherwise({
+                                        redirectTo: '/lost'
+                                    });
+                        }]);
+                    rmsApp.controller('InterviewInviteCtrl', function ($scope, $resource, $routeParams) {
+                        Interview = $resource('./../api/public/interview?domain=:domain&candidateId=:candidateId&interviewId=:interviewId&action=:action');
+                        Interview.save({"domain": $routeParams.domain,
+                            "action": $routeParams.action,
+                            "candidateId": $routeParams.candidateId,
+                            "interviewId": $routeParams.interviewId}, {}, function (data) {
+                            $scope.interview = data;
+                        });
+                    });
+                    rmsApp.controller('FeedbackCtrl', function ($scope, $resource, $routeParams) {
+                        Feedback = $resource('./../api/public/feedback?domain=:domain&candidateId=:candidateId&feedbackId=:feedbackId&action=:action');
+                        Feedback.get({"domain": $routeParams.domain,
+                            "action": $routeParams.action,
+                            "candidateId": $routeParams.candidateId,
+                            "feedbackId": $routeParams.feedbackId}, {}, function (data) {
+                            $scope.feedback = data;
+                        });
+                        $scope.updateFeedback = function () {
+                            $scope.adding = true;
+                            Feedback.save({"domain": $routeParams.domain,
+                                "action": $routeParams.action,
+                                "candidateId": $routeParams.candidateId,
+                                "feedbackId": $routeParams.feedbackId}, $scope.feedback, function (data) {
+                                $scope.feedback = data;
+                                $scope.adding = false;
+                            }, function () {
+                                $scope.adding = false;
+                            });
+                        };
+                    });</script>
+
+    </body>
+</html>
